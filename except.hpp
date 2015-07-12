@@ -49,7 +49,8 @@ namespace uscheme {
         ERR_CHAR_SP,
         ERR_CHAR_TB,
         ERR_STR_ABR,
-        ERR_TERM_STR
+        ERR_TERM_STR,
+        ERR_TERM_EMPTY
     };
 
     USCHEME_API

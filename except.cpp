@@ -45,15 +45,17 @@ namespace uscheme {
             case ERR_INV_BOOL:
                 return "Invalid boolean value.";
             case ERR_CHAR_NL:
-                return "Character literal did not match #\\newline.";
+                return "Character literal did not match '#\\newline.'";
             case ERR_CHAR_SP:
-                return "Character literal did not match #\\space.";
+                return "Character literal did not match '#\\space'.";
             case ERR_CHAR_TB:
-                return "Character literal did not match #\\tab.";
+                return "Character literal did not match '#\\tab'.";
             case ERR_STR_ABR:
                 return "String literal terminated abruptly.";
             case ERR_TERM_STR:
                 return "String literal not followed by delimiter.";
+            case ERR_TERM_EMPTY:
+                return "Empty list not terminated with ')', or no whitespace after.";
             default:
                 return "Unknown error.";
         }

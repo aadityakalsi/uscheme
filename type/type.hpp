@@ -39,7 +39,8 @@ enum object_type
     CHARACTER,
     STRING,
     FIXNUM,
-    EMPTY_LIST
+    EMPTY_LIST,
+    PAIR
 };
 
 }//namespace uscheme

@@ -74,6 +74,11 @@ namespace uscheme {
                 free((void*)data_.string.value);
                 break;
             }
+            case PAIR: {
+                delete data_.pair.car;
+                delete data_.pair.cdr;
+                break;
+            }
             default: {
                 break;
             }

@@ -507,7 +507,7 @@ CPP_TEST( read_object_empty_list )
             uscheme::read_object(strm);
         } catch (const std::exception& ex) {
             TEST_TRUE(
-                std::string(ex.what()).find("Empty list")
+                std::string(ex.what()).find("EOS")
                 != std::string::npos);
         }
     }
@@ -520,7 +520,7 @@ CPP_TEST( read_object_empty_list )
             uscheme::read_object(strm);
         } catch (const std::exception& ex) {
             TEST_TRUE(
-                std::string(ex.what()).find("Empty list")
+                std::string(ex.what()).find("List")
                 != std::string::npos);
         }
     }
@@ -551,6 +551,72 @@ CPP_TEST( read_object_empty_list )
         std::stringstream os;
         uscheme::print_object(os, p);
         TEST_TRUE( os.str() == "()" );
+    }
+}
+
+CPP_TEST( read_object_pair )
+{
+    {
+        std::stringstream strm;
+        strm << "(0 . 1)";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::PAIR);
+        TEST_TRUE(p->is_pair());
+        TEST_TRUE(p->car()->fixnum() == 0);
+        TEST_TRUE(p->cdr()->fixnum() == 1);
+
+        std::stringstream os;
+        uscheme::print_object(os, p);
+        TEST_TRUE(os.str() == "(0 . 1)");
+    }
+
+    {
+        std::stringstream strm;
+        strm << "(0   1)";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::PAIR);
+        TEST_TRUE(p->is_pair());
+        TEST_TRUE(p->car()->fixnum() == 0);
+        TEST_TRUE(p->cdr()->car()->fixnum() == 1);
+        TEST_TRUE(p->cdr()->cdr()->is_empty_list());
+
+        std::stringstream os;
+        uscheme::print_object(os, p);
+        TEST_TRUE(os.str() == "(0 1)");
+    }
+
+    {
+        std::stringstream strm;
+        strm << "(0 . (1 . ()))";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::PAIR);
+        TEST_TRUE(p->is_pair());
+        TEST_TRUE(p->car()->fixnum() == 0);
+        TEST_TRUE(p->cdr()->car()->fixnum() == 1);
+        TEST_TRUE(p->cdr()->cdr()->is_empty_list());
+
+        std::stringstream os;
+        uscheme::print_object(os, p);
+        TEST_TRUE(os.str() == "(0 1)");
+    }
+
+    {
+        std::stringstream strm;
+        strm << "(0 . (1 . 2))";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::PAIR);
+        TEST_TRUE(p->is_pair());
+        TEST_TRUE(p->car()->fixnum() == 0);
+        TEST_TRUE(p->cdr()->car()->fixnum() == 1);
+        TEST_TRUE(p->cdr()->cdr()->fixnum() == 2);
+
+        std::stringstream os;
+        uscheme::print_object(os, p);
+        TEST_TRUE(os.str() == "(0 1 . 2)");
     }
 }
 

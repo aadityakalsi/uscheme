@@ -112,7 +112,7 @@ namespace uscheme {
                 break;
             }
             case '(': {
-                t = EMPTY_LIST;
+                t = PAIR;
                 break;
             }
             /* number */
@@ -312,12 +312,54 @@ namespace uscheme {
 
     object_ptr read_empty_list(std::istream& s)
     {
-        s.get(); /* skip '(' */
         skip_whitespace(s);
-        ERROR_IF((s.peek() != ')'), ERR_TERM_EMPTY);
+        ERROR_IF((s.peek() != ')'), ERR_TERM_LIST);
         s.get();
-        ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_EMPTY);
+        ERROR_IF(!is_whitespace(s.peek()) && (s.peek() != ')'), ERR_TERM_LIST);
         return empty_list_value();
+    }
+
+    object_ptr read_pair(std::istream& s)
+    {
+        object_ptr car;
+        object_ptr cdr;
+
+        if (s.peek() == '(') {
+            /* skip the '(' */
+            s.get();
+        }
+
+        skip_whitespace(s);
+
+        if (s.peek() == ')') { return read_empty_list(s); }
+
+        car = read_object(s);
+        skip_whitespace(s);
+
+        object_ptr out;
+
+        if (s.peek() == '.') {
+            /* improper list */
+            s.get();
+            ERROR_IF(!is_whitespace(s.peek()), ERR_IMP_LIST_WS);
+            cdr = read_object(s);
+            skip_whitespace(s);
+            ERROR_IF(s.peek() != ')', ERR_TERM_LIST);
+            s.get();
+            out = object::cons(car, cdr);
+        } else {
+            cdr = read_pair(s);
+            out = object::cons(car, cdr);
+        }
+
+        //if (is_whitespace(s.peek())) {
+        //    skip_whitespace(s);
+        //}
+        //ERROR_IF(s.peek() != ')', ERR_TERM_LIST);
+        //s.get();
+        //ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_LIST);
+
+        return out;
     }
 
     object_ptr read_object(std::istream& s)
@@ -340,11 +382,26 @@ namespace uscheme {
             case STRING:
                 p = read_string(s);
                 break;
-            case EMPTY_LIST:
-                p = read_empty_list(s);
+            case PAIR:
+                p = read_pair(s);
                 break;    
         }
         return p;
+    }
+
+    void print_pair(std::ostream& os, const object_ptr& p)
+    {
+        print_object(os, p->car());
+        auto cdr = p->cdr();
+        if (cdr->is_pair()) {
+            os.put(' ');
+            print_pair(os, cdr);
+        } else if (cdr->is_empty_list()) {
+            return;
+        } else {/* improper list */
+            os << " . ";
+            print_object(os, cdr);
+        }
     }
 
     void print_object(std::ostream& os, const object_ptr& p)
@@ -417,6 +474,12 @@ namespace uscheme {
             }
             case EMPTY_LIST: {
                 os << "()";
+                break;
+            }
+            case PAIR: {
+                os.put('(');
+                print_pair(os, p);
+                os.put(')');
                 break;
             }
         }

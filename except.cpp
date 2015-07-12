@@ -54,8 +54,10 @@ namespace uscheme {
                 return "String literal terminated abruptly.";
             case ERR_TERM_STR:
                 return "String literal not followed by delimiter.";
-            case ERR_TERM_EMPTY:
-                return "Empty list not terminated with ')', or no whitespace after.";
+            case ERR_TERM_LIST:
+                return "List not terminated with ')', or no whitespace after.";
+            case ERR_IMP_LIST_WS:
+                return "Improper list '.' not followed by whitespace.";
             default:
                 return "Unknown error.";
         }

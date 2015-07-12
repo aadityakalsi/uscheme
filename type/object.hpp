@@ -102,9 +102,24 @@ namespace uscheme {
             return ptr;
         }
 
+        static USCHEME_INLINE
+        object_ptr cons(object_ptr car, object_ptr cdr)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = PAIR;
+            ptr->data_.pair.car = new object_ptr(car);
+            ptr->data_.pair.cdr = new object_ptr(cdr);
+            return ptr;
+        }
+
         //////////////////////////////////////////////////////////////////////////
         // Instance methods
         //////////////////////////////////////////////////////////////////////////
+
+        object(const object& rhs)
+          : type_(rhs.type_)
+          , data_(rhs.data_)
+        { }
 
         USCHEME_INLINE
         object_type type() const
@@ -143,6 +158,12 @@ namespace uscheme {
         }
 
         USCHEME_INLINE
+        bool is_pair() const
+        {
+            return type_ == PAIR;
+        }
+
+        USCHEME_INLINE
         long fixnum() const
         {
             return data_.fixnum.value;
@@ -164,6 +185,18 @@ namespace uscheme {
         const char* string() const
         {
             return data_.string.value;
+        }
+
+        USCHEME_INLINE
+        object_ptr car() const
+        {
+            return *(data_.pair.car);
+        }
+
+        USCHEME_INLINE
+        object_ptr cdr() const
+        {
+            return *(data_.pair.cdr);
         }
 
         ~object()
@@ -193,6 +226,10 @@ namespace uscheme {
             struct {
                 const char* value;
             } string;
+            struct {
+                object_ptr* car;
+                object_ptr* cdr;
+            } pair;
         } data_;
 
         void init_string(const char* val);

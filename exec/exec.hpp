@@ -24,72 +24,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file scheme.cpp
+ * \file exec.hpp
  * \date 2015
  */
 
-#include <string>
-#include <iostream>
+#ifndef USCHEME_EXEC_EXEC_HPP
+#define USCHEME_EXEC_EXEC_HPP
 
+// PKG includes
 #include <uscheme/defs.hpp>
-#include <uscheme/stream/stream.hpp>
-#include <uscheme/exec/exec.hpp>
+#include <uscheme/type/object.hpp>
 
-void usage(void)
-{
-    std::cout <<
-    "\n"
-    "usage: scheme [-h]\n"
-    "\n"
-    "Scheme interpreter using libuscheme.\n"
-    "\n"
-    "libuscheme version: " << uscheme::version() << "\n" <<
-    "\n";
-}
+namespace uscheme {
 
-void usage_and_die(void)
-{
-    usage();
-    exit(1);
-}
+    USCHEME_API
+    object_ptr eval_object(const object_ptr& p);
 
-template <bool print = true>
-void repl(std::istream& strm)
-{
-    for (;;) {
-      if (print) {
-        std::cout << "> ";
-      }
+}//namespace uscheme
 
-        uscheme::object_ptr p;
-      try {
-        p = uscheme::read_object(strm);
-      } catch (const std::exception& ex) {
-        std::cerr << "ERROR: " << ex.what() << '\n';
-        continue;
-      }
+#endif//USCHEME_EXEC_EXEC_HPP
 
-        p = uscheme::eval_object(p);
-
-      if (print) {
-        uscheme::print_object(std::cout, p);
-        std::cout << '\n';
-      }
-    }
-}
-
-int main(int argc, const char* argv[])
-{
-    if (argc == 1) { repl<true>(std::cin); }
-
-    if (argc != 2) { usage_and_die(); }
-
-    std::string arg1(argv[1]);
-    if (arg1 != "-h") {
-        usage_and_die();
-    } else {
-        usage();
-    }
-
-    return 0;
-}

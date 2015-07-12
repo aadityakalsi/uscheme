@@ -3,11 +3,10 @@
  * \date 2015
  */
 
-#include <string>
-#include "unittest.hpp"
 
 // LANG includes
 #include <sstream>
+#include <string>
 #include <exception>
 
 // TEST includes

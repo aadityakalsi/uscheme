@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 // LANG includes
-
+#include <cstring>
 
 // PKG includes
 #include <uscheme/type/type.hpp>

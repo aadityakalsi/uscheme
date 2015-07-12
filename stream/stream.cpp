@@ -384,7 +384,10 @@ namespace uscheme {
                 break;
             case PAIR:
                 p = read_pair(s);
-                break;    
+                break;
+            case EMPTY_LIST:
+                p = read_empty_list(s);
+                break;
         }
         return p;
     }

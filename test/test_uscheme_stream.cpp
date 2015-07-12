@@ -89,4 +89,14 @@ CPP_TEST( read_object )
         TEST_TRUE( p->is_fixnum() );
         TEST_TRUE( p->fixnum() == 127 );
     }
+
+    {
+        std::stringstream strm;
+        strm << "\r\n\n;;\n;Comment line\r\n;Another Comment\n127;Trailing comment";
+        
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::FIXNUM );
+        TEST_TRUE( p->is_fixnum() );
+        TEST_TRUE( p->fixnum() == 127 );
+    }
 }

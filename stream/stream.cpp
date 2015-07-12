@@ -90,7 +90,7 @@ namespace uscheme {
         }
     }
 
-    type determine_type(std::istream& s)
+    object_type determine_type(std::istream& s)
     {
         return FIXNUM;
     }
@@ -125,7 +125,7 @@ namespace uscheme {
         skip_whitespace(s);
         ERROR_IF(s.eof(), "Reached EOS.");
 
-        type t = determine_type(s);
+        const auto t = determine_type(s);
         object_ptr p;
         switch (t) {
             case FIXNUM:

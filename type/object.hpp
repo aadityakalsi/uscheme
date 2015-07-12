@@ -56,7 +56,7 @@ namespace uscheme {
         }
 
         USCHEME_INLINE
-        type type() const
+        object_type type() const
         {
             return type_;
         }
@@ -81,7 +81,7 @@ namespace uscheme {
             data_.fixnum.value = 0;
         }
 
-        enum type type_;
+        enum object_type type_;
         union {
             struct {
                 long value;

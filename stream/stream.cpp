@@ -96,7 +96,7 @@ namespace uscheme {
         object_type t;
         switch (s.peek()) {
             case '#': {
-                char ch = s.get();
+                s.get();
                 t = (s.peek() == '\\') ? CHARACTER : BOOLEAN;
                 s.unget();
                 break;

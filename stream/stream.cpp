@@ -48,8 +48,13 @@ namespace uscheme {
     bool is_delimiter(char ch)
     {
         return isspace(ch) || (ch == EOF) ||
-               (ch == '(') || (ch == ')') ||
-               (ch == '"') || (ch == ';');
+            (ch == '(') || (ch == ')') ||
+            (ch == '"') || (ch == ';');
+    }
+
+    bool is_whitespace(char ch)
+    {
+        return isspace(ch) || (ch == ';');
     }
 
     void skip_line(std::istream& s)
@@ -295,8 +300,8 @@ namespace uscheme {
         }
         
         ERROR_IF((ch != '"'), ERR_STR_ABR);
-        ERROR_IF(!is_delimiter(s.peek()), ERR_TERM_STR);
         s.get();
+        ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_STR);
 
         return object::create_string(BUFFER.c_str());
     }

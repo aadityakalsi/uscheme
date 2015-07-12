@@ -68,11 +68,8 @@ void repl(std::istream& strm)
       } catch (const uscheme::exception& ex) {
         if (ex.id() == uscheme::ERR_EOS) {
             exit(0);
-        }
-        if (ex.id() == uscheme::ERR_UNK_TYPE) {
-            while (!uscheme::is_delimiter(strm.peek())) {
-                strm.get();
-            }
+        } else {
+            uscheme::skip_line(strm);
         }
         std::cerr << "ERROR: " << ex.what() << '\n';
         continue;

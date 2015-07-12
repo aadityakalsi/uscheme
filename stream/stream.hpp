@@ -46,7 +46,7 @@ namespace uscheme {
     /**
      *
      */
-    bool is_delimiter(char ch);
+    void skip_line(std::istream& s);
 
     USCHEME_API
     /**

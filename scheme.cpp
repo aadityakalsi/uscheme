@@ -56,6 +56,7 @@ void usage_and_die(void)
 template <bool print = true>
 void repl(std::istream& strm)
 {
+    std::cout << "Welcome to uscheme. Use Ctrl-C to exit.\n";
     for (;;) {
       if (print) {
         std::cout << "> ";
@@ -80,15 +81,24 @@ void repl(std::istream& strm)
 
 int main(int argc, const char* argv[])
 {
-    if (argc == 1) { repl<true>(std::cin); }
-
-    if (argc != 2) { usage_and_die(); }
-
-    std::string arg1(argv[1]);
-    if (arg1 != "-h") {
-        usage_and_die();
-    } else {
-        usage();
+    switch (argc) {
+        case 1: {
+            repl<true>(std::cin);
+            break;
+        }
+        case 2: {
+            std::string arg1(argv[1]);
+            if (arg1 != "-h") {
+                usage_and_die();
+            } else {
+                usage();
+            }
+            break;
+        }
+        default:{
+            usage_and_die();
+            break;
+        }
     }
 
     return 0;

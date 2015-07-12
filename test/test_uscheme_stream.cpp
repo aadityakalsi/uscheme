@@ -141,3 +141,96 @@ CPP_TEST( read_object_boolean )
     }
 }
 
+CPP_TEST( read_object_character )
+{
+    {
+        std::stringstream strm;
+        strm << "#\\\t";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == '\t' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\tab";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == '\t' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\\n";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == '\n' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\newline";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == '\n' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\ ";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == ' ' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\space";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == ' ' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\n";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == 'n' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\s";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::CHARACTER );
+        TEST_TRUE( p->is_character() );
+        TEST_TRUE( p->character() == 's' );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#\\t";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::CHARACTER);
+        TEST_TRUE(p->is_character());
+        TEST_TRUE(p->character() == 't');
+    }
+}
+

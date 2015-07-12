@@ -94,8 +94,32 @@ namespace uscheme {
     {
         object_type t;
         switch (s.peek()) {
-            case '#' : t = BOOLEAN; break;
-            default  : t = FIXNUM;  break;
+            case '#': {
+                char ch = s.get();
+                t = (s.peek() == '\\') ? CHARACTER : BOOLEAN;
+                s.unget();
+                break;
+            }
+            /* number */
+            case '+': /* fall through */
+            case '-': /* fall through */
+            case '0': /* fall through */
+            case '1': /* fall through */
+            case '2': /* fall through */
+            case '3': /* fall through */
+            case '4': /* fall through */
+            case '5': /* fall through */
+            case '6': /* fall through */
+            case '7': /* fall through */
+            case '8': /* fall through */
+            case '9': {
+                t = FIXNUM;
+                break;
+            }
+            default: {
+                t = FIXNUM;
+                break;
+            }
         }
         return t;
     }
@@ -142,6 +166,81 @@ namespace uscheme {
         return value ? true_value() : false_value();
     }
 
+    object_ptr read_character(std::istream& s)
+    {
+        char ch = s.get(); /* get # */
+        ch = s.get();      /* get \ */
+        ch = s.get();
+
+        object_ptr p;
+
+        if (ch != 'n' && ch != 't' && ch != 's') {
+            p = object::create_character(ch);
+        } else {
+            /* could be newline or tab or space or just n or t or s */
+            char characters[8];
+            size_t numpushed = 0;
+            if (ch == 'n') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('n');
+                } else {
+                    /* better match ewline */
+                    for (; numpushed != 6; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "ewline") == 0) {
+                        p = object::create_character('\n');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, "Character literal did not match \\newline.")
+                    }
+                }
+            }
+            if (ch == 't') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('t');
+                } else {
+                    /* better match ab */
+                    for (; numpushed != 2; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "ab") == 0) {
+                        p = object::create_character('\t');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, "Character literal did not match \\tab.")
+                    }
+                }
+            }
+            if (ch == 's') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('s');
+                } else {
+                    /* better match pace */
+                    for (; numpushed != 4; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "pace") == 0) {
+                        p = object::create_character(' ');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, "Character literal did not match \\space.")
+                    }
+                }
+            }
+        }
+        return  p;
+    }
+
     object_ptr read_object(std::istream& s)
     {
         skip_whitespace(s);
@@ -156,6 +255,9 @@ namespace uscheme {
             case BOOLEAN:
                 p = read_boolean(s);
                 break;
+            case CHARACTER:
+                p = read_character(s);
+                break;
         }
         return p;
     }
@@ -163,12 +265,25 @@ namespace uscheme {
     void print_object(std::ostream& os, const object_ptr& p)
     {
         switch (p->type()) {
-            case FIXNUM:
+            case FIXNUM: {
                 os << p->fixnum();
                 break;
-            case BOOLEAN:
+            }
+            case BOOLEAN: {
                 os << '#' << (p->boolean() ? 't' : 'f');
                 break;
+            }
+            case CHARACTER: {
+                os << "#\\";
+                char ch = p->character();
+                switch (ch) {
+                    case '\n': os << "newline"; break;
+                    case ' ' : os << "space"; break;
+                    case '\t': os << "tab"; break;
+                    default  : os << ch; break;
+                }
+                break;
+            }
         }
     }
 

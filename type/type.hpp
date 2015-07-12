@@ -36,6 +36,7 @@ namespace uscheme {
 enum object_type
 {
     BOOLEAN,
+    CHARACTER,
     FIXNUM
 };
 

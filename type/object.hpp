@@ -52,6 +52,11 @@ namespace uscheme {
      */
     struct object
     {
+
+        //////////////////////////////////////////////////////////////////////////
+        // Static methods
+        //////////////////////////////////////////////////////////////////////////
+
         static USCHEME_INLINE
         object_ptr create_fixnum(long value)
         {
@@ -70,6 +75,19 @@ namespace uscheme {
             return ptr;
         }
 
+        static USCHEME_INLINE
+        object_ptr create_character(char value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = CHARACTER;
+            ptr->data_.character.value = value;
+            return ptr;
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Instance methods
+        //////////////////////////////////////////////////////////////////////////
+
         USCHEME_INLINE
         object_type type() const
         {
@@ -86,7 +104,13 @@ namespace uscheme {
         bool is_boolean() const
         {
             return type_ == BOOLEAN;
-        }        
+        }
+
+        USCHEME_INLINE
+        bool is_character() const
+        {
+            return type_ == CHARACTER;
+        }
 
         USCHEME_INLINE
         long fixnum() const
@@ -98,6 +122,12 @@ namespace uscheme {
         bool boolean() const
         {
             return data_.boolean.value != 0;
+        }
+
+        USCHEME_INLINE
+        char character() const
+        {
+            return data_.character.value;
         }
 
       private:
@@ -116,6 +146,9 @@ namespace uscheme {
             struct {
                 char value;
             } boolean;
+            struct {
+                char value;
+            } character;
         } data_;
     };
 

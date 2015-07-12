@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // LANG includes
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
 #include <stdexcept>
 

@@ -54,7 +54,7 @@ namespace uscheme {
 
     bool is_whitespace(char ch)
     {
-        return isspace(ch) || (ch == ';');
+        return isspace(ch) || (ch == ';') || (ch == EOF);
     }
 
     void skip_line(std::istream& s)

@@ -12,5 +12,5 @@
 
 CPP_TEST( version )
 {
-    TEST_TRUE( std::strcmp(uscheme::version(), "0.1.1") == 0 );
+    TEST_TRUE( strcmp(uscheme::version(), "0.1.1") == 0 );
 }

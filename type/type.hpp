@@ -38,7 +38,8 @@ enum object_type
     BOOLEAN,
     CHARACTER,
     STRING,
-    FIXNUM
+    FIXNUM,
+    EMPTY_LIST
 };
 
 }//namespace uscheme

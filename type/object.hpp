@@ -94,6 +94,14 @@ namespace uscheme {
             return ptr;
         }
 
+        static USCHEME_INLINE
+        object_ptr create_empty_list()
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = EMPTY_LIST;
+            return ptr;
+        }
+
         //////////////////////////////////////////////////////////////////////////
         // Instance methods
         //////////////////////////////////////////////////////////////////////////
@@ -126,6 +134,12 @@ namespace uscheme {
         bool is_string() const
         {
             return type_ == STRING;
+        }
+
+        USCHEME_INLINE
+        bool is_empty_list() const
+        {
+            return type_ == EMPTY_LIST;
         }
 
         USCHEME_INLINE
@@ -197,6 +211,12 @@ namespace uscheme {
      *
      */
     object_ptr false_value(void);
+
+    USCHEME_API
+    /**
+     *
+     */
+    object_ptr empty_list_value(void);
 
 }//namespace uscheme
 

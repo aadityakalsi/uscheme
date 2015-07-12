@@ -334,3 +334,52 @@ CPP_TEST( read_object_string )
     }
 }
 
+CPP_TEST( read_object_empty_list )
+{
+    {
+        std::stringstream strm;
+        strm << "(";
+
+        try {
+            uscheme::read_object(strm);
+        } catch (const std::exception& ex) {
+            TEST_TRUE(
+                std::string(ex.what()).find("Empty list")
+                != std::string::npos);
+        }
+    }
+
+    {
+        std::stringstream strm;
+        strm << "()gf";
+
+        try {
+            uscheme::read_object(strm);
+        } catch (const std::exception& ex) {
+            TEST_TRUE(
+                std::string(ex.what()).find("Empty list")
+                != std::string::npos);
+        }
+    }
+
+    {
+        std::stringstream strm;
+        strm << "( )";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::EMPTY_LIST );
+        TEST_TRUE( p->is_empty_list() );
+        TEST_TRUE( p.get() == uscheme::empty_list_value().get() );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "(\n\r\n)\n";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::EMPTY_LIST );
+        TEST_TRUE( p->is_empty_list() );
+        TEST_TRUE( p.get() == uscheme::empty_list_value().get() );
+    }
+}
+

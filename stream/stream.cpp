@@ -111,6 +111,10 @@ namespace uscheme {
                 t = STRING;
                 break;
             }
+            case '(': {
+                t = EMPTY_LIST;
+                break;
+            }
             /* number */
             case '+': /* fall through */
             case '-': /* fall through */
@@ -306,6 +310,16 @@ namespace uscheme {
         return object::create_string(BUFFER.c_str());
     }
 
+    object_ptr read_empty_list(std::istream& s)
+    {
+        s.get(); /* skip '(' */
+        skip_whitespace(s);
+        ERROR_IF((s.peek() != ')'), ERR_TERM_EMPTY);
+        s.get();
+        ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_EMPTY);
+        return empty_list_value();
+    }
+
     object_ptr read_object(std::istream& s)
     {
         skip_whitespace(s);
@@ -326,6 +340,9 @@ namespace uscheme {
             case STRING:
                 p = read_string(s);
                 break;
+            case EMPTY_LIST:
+                p = read_empty_list(s);
+                break;    
         }
         return p;
     }
@@ -396,6 +413,11 @@ namespace uscheme {
                 }
 
                 os.put('"');
+                break;
+            }
+            case EMPTY_LIST: {
+                os << "()";
+                break;
             }
         }
     }

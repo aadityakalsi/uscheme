@@ -45,6 +45,7 @@ namespace uscheme {
 
     static const object_ptr TRUE  = object::create_boolean(true);
     static const object_ptr FALSE = object::create_boolean(false);
+    static const object_ptr EMPTY = object::create_empty_list();
 
     object_ptr true_value(void)
     {
@@ -54,6 +55,11 @@ namespace uscheme {
     object_ptr false_value(void)
     {
         return FALSE;
+    }
+
+    object_ptr empty_list_value(void)
+    {
+        return EMPTY;
     }
 
     void object::init_string(const char* value)

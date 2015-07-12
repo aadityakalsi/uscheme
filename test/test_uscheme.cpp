@@ -3,7 +3,10 @@
  * \date 2015
  */
 
-#include <string>
+// LANG includes
+#include <cstring>
+
+// TEST includes
 #include "unittest.hpp"
 
 // TESTS

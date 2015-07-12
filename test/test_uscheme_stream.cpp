@@ -10,7 +10,8 @@
 #include <sstream>
 #include <exception>
 
-// TESTS
+// TEST includes
+#include "unittest.hpp"
 
 #include <uscheme/stream/stream.hpp>
 

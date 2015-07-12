@@ -36,12 +36,13 @@ include("cmake/ProjTools.cmake")
 set(PUBLIC_HDR
   defs.hpp;
   type/type.hpp;
+  type/object.hpp;
   stream/stream.hpp
 )
 
 set(LIB_SRC
   lib.cpp;
-  type/type.cpp;
+  type/object.cpp;
   stream/stream.cpp
 )
 

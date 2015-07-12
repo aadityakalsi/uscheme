@@ -24,7 +24,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file type.cpp
+ * \file object.cpp
  * \date 2015
  */
 
+// LANG includes
+
+
+// PKG includes
+#include <uscheme/type/type.hpp>
+#include <uscheme/type/object.hpp>
+
+namespace uscheme {
+
+
+
+}//namespace uscheme

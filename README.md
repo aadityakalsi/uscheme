@@ -2,7 +2,6 @@
 
 A mini scheme interpreter, written with helpful articles from the internet.
 
-## thing 1
+### References
 
-## thing 2
-
+- http://peter.michaux.ca/articles/scheme-from-scratch-bootstrap-v0_1-integers

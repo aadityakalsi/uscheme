@@ -42,9 +42,15 @@ namespace uscheme {
 
     struct object;
 
-    typedef std::unique_ptr<object> object_ptr;
+    /**
+     *
+     */
+    typedef std::shared_ptr<object> object_ptr;
 
-    struct USCHEME_API object
+    /**
+     *
+     */
+    struct object
     {
         static USCHEME_INLINE
         object_ptr create_fixnum(long value)
@@ -52,6 +58,15 @@ namespace uscheme {
             object_ptr ptr(new object);
             ptr->type_ = FIXNUM;
             ptr->data_.fixnum.value = value;
+            return ptr;
+        }
+
+        static USCHEME_INLINE
+        object_ptr create_boolean(bool value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = BOOLEAN;
+            ptr->data_.boolean.value = value ? 1 : 0;
             return ptr;
         }
 
@@ -68,9 +83,21 @@ namespace uscheme {
         }
 
         USCHEME_INLINE
+        bool is_boolean() const
+        {
+            return type_ == BOOLEAN;
+        }        
+
+        USCHEME_INLINE
         long fixnum() const
         {
             return data_.fixnum.value;
+        }
+
+        USCHEME_INLINE
+        bool boolean() const
+        {
+            return data_.boolean.value != 0;
         }
 
       private:
@@ -86,8 +113,23 @@ namespace uscheme {
             struct {
                 long value;
             } fixnum;
+            struct {
+                char value;
+            } boolean;
         } data_;
     };
+
+    USCHEME_API
+    /**
+     *
+     */
+    object_ptr true_value(void);
+
+    USCHEME_API
+    /**
+     *
+     */
+    object_ptr false_value(void);
 
 }//namespace uscheme
 

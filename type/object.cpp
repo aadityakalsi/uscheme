@@ -37,6 +37,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace uscheme {
 
+    static const object_ptr TRUE  = object::create_boolean(true);
+    static const object_ptr FALSE = object::create_boolean(false);
 
+    object_ptr true_value(void)
+    {
+        return TRUE;
+    }
+
+    object_ptr false_value(void)
+    {
+        return FALSE;
+    }
 
 }//namespace uscheme

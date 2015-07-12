@@ -35,6 +35,7 @@ namespace uscheme {
 
 enum object_type
 {
+    BOOLEAN,
     FIXNUM
 };
 

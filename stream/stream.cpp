@@ -92,7 +92,12 @@ namespace uscheme {
 
     object_type determine_type(std::istream& s)
     {
-        return FIXNUM;
+        object_type t;
+        switch (s.peek()) {
+            case '#' : t = BOOLEAN; break;
+            default  : t = FIXNUM;  break;
+        }
+        return t;
     }
 
     object_ptr read_fixnum(std::istream& s)
@@ -120,6 +125,23 @@ namespace uscheme {
         return object::create_fixnum(num);
     }
 
+    object_ptr read_boolean(std::istream& s)
+    {
+        char ch = s.get();
+        ch = s.get();
+
+        bool value = false;
+
+        switch (ch) {
+            case 't': value = true; break;
+            case 'f': break;
+            default :
+                ERROR_IF(true, "Invalid boolean value.");
+        }
+
+        return value ? true_value() : false_value();
+    }
+
     object_ptr read_object(std::istream& s)
     {
         skip_whitespace(s);
@@ -129,7 +151,11 @@ namespace uscheme {
         object_ptr p;
         switch (t) {
             case FIXNUM:
-                p = std::move(read_fixnum(s));
+                p = read_fixnum(s);
+                break;
+            case BOOLEAN:
+                p = read_boolean(s);
+                break;
         }
         return p;
     }
@@ -139,6 +165,8 @@ namespace uscheme {
         switch (p->type()) {
             case FIXNUM:
                 os << p->fixnum();
+            case BOOLEAN:
+                os << '#' << (p->boolean() ? 't' : 'f');
         }
     }
 

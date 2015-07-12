@@ -6,15 +6,18 @@
 
 // LANG includes
 #include <sstream>
+#include <iostream>
 #include <string>
 #include <exception>
 
 // TEST includes
 #include "unittest.hpp"
 
+// PKG includes
+#include <uscheme/type/object.hpp>
 #include <uscheme/stream/stream.hpp>
 
-CPP_TEST( read_object )
+CPP_TEST( read_object_fixnum )
 {
     {
         std::stringstream strm;
@@ -100,3 +103,41 @@ CPP_TEST( read_object )
         TEST_TRUE( p->fixnum() == 127 );
     }
 }
+
+CPP_TEST( read_object_boolean )
+{
+    {
+        std::stringstream strm;
+        strm << "#y";
+        
+        try {
+            auto p = uscheme::read_object(strm);
+        } catch (const std::exception& ex) {
+            TEST_TRUE(
+                std::string(ex.what()).find("Invalid boolean") != std::string::npos);
+        }
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#t";
+        
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::BOOLEAN );
+        TEST_TRUE( p->is_boolean() );
+        TEST_TRUE( p->boolean() );
+        TEST_TRUE( p.get() == uscheme::true_value().get() );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "#f";
+        
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::BOOLEAN );
+        TEST_TRUE( p->is_boolean() );
+        TEST_TRUE( !p->boolean() );
+        TEST_TRUE( p.get() == uscheme::false_value().get() );
+    }
+}
+

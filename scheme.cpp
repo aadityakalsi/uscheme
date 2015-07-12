@@ -65,7 +65,15 @@ void repl(std::istream& strm)
         uscheme::object_ptr p;
       try {
         p = uscheme::read_object(strm);
-      } catch (const std::exception& ex) {
+      } catch (const uscheme::exception& ex) {
+        if (ex.id() == uscheme::ERR_EOS) {
+            exit(0);
+        }
+        if (ex.id() == uscheme::ERR_UNK_TYPE) {
+            while (!uscheme::is_delimiter(strm.peek())) {
+                strm.get();
+            }
+        }
         std::cerr << "ERROR: " << ex.what() << '\n';
         continue;
       }

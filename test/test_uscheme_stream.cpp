@@ -234,3 +234,102 @@ CPP_TEST( read_object_character )
     }
 }
 
+CPP_TEST( read_object_string )
+{
+    {
+        std::stringstream strm;
+        strm << "\"foo";
+
+        try {
+            uscheme::read_object(strm);
+        } catch (const std::exception& ex) {
+            TEST_TRUE(
+                std::string(ex.what()).find("String literal")
+                != std::string::npos);
+        }
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\":";
+
+        try {
+            uscheme::read_object(strm);
+        } catch (const std::exception& ex) {
+            TEST_TRUE(
+                std::string(ex.what()).find("String literal")
+                != std::string::npos);
+        }
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo/def\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo/def") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\\n\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo\n") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\\t\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo\t") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\\b\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo\b") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\\v\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo\v") == 0 );
+    }
+
+    {
+        std::stringstream strm;
+        strm << "\"foo\\\\\"";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE( p->type() == uscheme::STRING );
+        TEST_TRUE( p->is_string() );
+        TEST_TRUE( strcmp(p->string(), "foo\\") == 0 );
+    }
+}
+

@@ -35,6 +35,7 @@ include("cmake/ProjTools.cmake")
 # --- Add uscheme and libuscheme
 set(PUBLIC_HDR
   defs.hpp;
+  except.hpp;
   type/type.hpp;
   type/object.hpp;
   stream/stream.hpp;
@@ -43,6 +44,7 @@ set(PUBLIC_HDR
 
 set(LIB_SRC
   lib.cpp;
+  except.cpp
   type/object.cpp;
   stream/stream.cpp;
   exec/exec.cpp

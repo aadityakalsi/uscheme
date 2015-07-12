@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define USCHEME_TYPE_OBJECT_HPP
 
 // LANG includes
+#include <cstdlib>
 #include <memory>
 
 // PKG includes
@@ -84,6 +85,15 @@ namespace uscheme {
             return ptr;
         }
 
+        static USCHEME_INLINE
+        object_ptr create_string(const char* value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = STRING;
+            ptr->init_string(value);
+            return ptr;
+        }
+
         //////////////////////////////////////////////////////////////////////////
         // Instance methods
         //////////////////////////////////////////////////////////////////////////
@@ -113,6 +123,12 @@ namespace uscheme {
         }
 
         USCHEME_INLINE
+        bool is_string() const
+        {
+            return type_ == STRING;
+        }
+
+        USCHEME_INLINE
         long fixnum() const
         {
             return data_.fixnum.value;
@@ -128,6 +144,17 @@ namespace uscheme {
         char character() const
         {
             return data_.character.value;
+        }
+
+        USCHEME_INLINE
+        const char* string() const
+        {
+            return data_.string.value;
+        }
+
+        ~object()
+        {
+            destroy();
         }
 
       private:
@@ -149,7 +176,28 @@ namespace uscheme {
             struct {
                 char value;
             } character;
+            struct {
+                const char* value;
+            } string;
         } data_;
+
+        void init_string(const char* val)
+        {
+            data_.string.value = strdup(val);
+        }
+
+        void destroy()
+        {
+            switch (type_) {
+                case STRING: {
+                    free((void*)data_.string.value);
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
     };
 
     USCHEME_API

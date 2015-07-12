@@ -24,34 +24,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file stream.hpp
+ * \file except.hpp
  * \date 2015
  */
 
-#ifndef USCHEME_STREAM_STREAM_HPP
-#define USCHEME_STREAM_STREAM_HPP
+#ifndef USCHEME_EXCEPT_HPP
+#define USCHEME_EXCEPT_HPP
 
 // LANG includes
-#include <istream>
-#include <ostream>
+#include <exception>
 
 // PKG includes
 #include <uscheme/defs.hpp>
-#include <uscheme/except.hpp>
-#include <uscheme/type/object.hpp>
 
 namespace uscheme {
 
-    USCHEME_API
-    bool is_delimiter(char ch);
+    enum except_id
+    {
+        ERR_EOS,
+        ERR_UNK_TYPE,
+        ERR_TERM_NUM,
+        ERR_INV_BOOL,
+        ERR_CHAR_NL,
+        ERR_CHAR_SP,
+        ERR_CHAR_TB,
+        ERR_STR_ABR,
+        ERR_TERM_STR
+    };
 
     USCHEME_API
-    object_ptr read_object(std::istream& s);
+    /**
+     *
+     */
+    const char* error_string(except_id id);
 
-    USCHEME_API
-    void print_object(std::ostream& os, const uscheme::object_ptr& p);
+    /**
+     *
+     */
+    class USCHEME_API exception : public std::exception
+    {
+      public:
+        exception(except_id id)
+          : id_(id)
+        { }
+
+        except_id id() const { return id_; }
+
+        const char* what() const throw()
+        {
+            return error_string(id_);
+        }
+
+      private:
+        except_id id_;
+    };
 
 }//namespace uscheme
 
-#endif//USCHEME_STREAM_STREAM_HPP
-
+#endif//USCHEME_EXCEPT_HPP

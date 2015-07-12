@@ -32,14 +32,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <stdexcept>
+#include <string>
 
 // PKG includes
+#include <uscheme/except.hpp>
 #include <uscheme/stream/stream.hpp>
 
-#define ERROR_IF(cond, msg)        \
- if ((cond)) {                     \
-    throw std::runtime_error(msg); \
+#define ERROR_IF(cond, id)        \
+ if ((cond)) {                    \
+    throw uscheme::exception(id); \
  }
 
 namespace uscheme {
@@ -101,6 +102,10 @@ namespace uscheme {
                 s.unget();
                 break;
             }
+            case '"': {
+                t = STRING;
+                break;
+            }
             /* number */
             case '+': /* fall through */
             case '-': /* fall through */
@@ -118,7 +123,7 @@ namespace uscheme {
                 break;
             }
             default: {
-                t = FIXNUM;
+                ERROR_IF(true, ERR_UNK_TYPE);
                 break;
             }
         }
@@ -143,9 +148,7 @@ namespace uscheme {
 
         num *= sign;
 
-        ERROR_IF(
-            !is_delimiter(ch),
-            "Number did not end with delimiter or whitespace.");
+        ERROR_IF(!is_delimiter(ch), ERR_TERM_NUM);
 
         return object::create_fixnum(num);
     }
@@ -161,7 +164,7 @@ namespace uscheme {
             case 't': value = true; break;
             case 'f': break;
             default :
-                ERROR_IF(true, "Invalid boolean value.");
+                ERROR_IF(true, ERR_INV_BOOL);
         }
 
         return value ? true_value() : false_value();
@@ -196,7 +199,7 @@ namespace uscheme {
                         for (size_t nchar = 0; nchar != numpushed; ++nchar) {
                             s.unget();
                         }
-                        ERROR_IF(true, "Character literal did not match \\newline.")
+                        ERROR_IF(true, ERR_CHAR_NL);
                     }
                 }
             }
@@ -215,7 +218,7 @@ namespace uscheme {
                         for (size_t nchar = 0; nchar != numpushed; ++nchar) {
                             s.unget();
                         }
-                        ERROR_IF(true, "Character literal did not match \\tab.")
+                        ERROR_IF(true, ERR_CHAR_TB);
                     }
                 }
             }
@@ -234,18 +237,74 @@ namespace uscheme {
                         for (size_t nchar = 0; nchar != numpushed; ++nchar) {
                             s.unget();
                         }
-                        ERROR_IF(true, "Character literal did not match \\space.")
+                        ERROR_IF(true, ERR_CHAR_SP);
                     }
                 }
             }
         }
-        return  p;
+        return p;
+    }
+
+    object_ptr read_string(std::istream& s)
+    {
+        static std::string BUFFER;
+        BUFFER.resize(0);
+
+        char ch = s.get(); /* skip the " */
+        while ((ch = s.peek()) != EOF && (ch != '\0') && (ch != '"')) {
+            if (ch == '\\') {
+                s.get();
+                switch (s.peek()) {
+                    case '\\': {
+                        ch = '\\';
+                        break;
+                    }
+                    case 'n': {
+                        ch = '\n';
+                        break;
+                    }
+                    case 't': {
+                        ch = '\t';
+                        break;
+                    }
+                    case '"': {
+                        ch = '"';
+                        break;
+                    }
+                    case 'a': {
+                        ch = '\a';
+                        break;
+                    }
+                    case 'b': {
+                        ch = '\b';
+                        break;
+                    }
+                    case 'v': {
+                        ch = '\v';
+                        break;
+                    }
+                    default: {
+                        continue;
+                        // s.unget();
+                        break;
+                    }
+                }
+            }
+            BUFFER.push_back(ch);
+            s.get();
+        }
+        
+        ERROR_IF((ch != '"'), ERR_STR_ABR);
+        ERROR_IF(!is_delimiter(s.peek()), ERR_TERM_STR);
+        s.get();
+
+        return object::create_string(BUFFER.c_str());
     }
 
     object_ptr read_object(std::istream& s)
     {
         skip_whitespace(s);
-        ERROR_IF(s.eof(), "Reached EOS.");
+        ERROR_IF(s.eof(), ERR_EOS);
 
         const auto t = determine_type(s);
         object_ptr p;
@@ -259,6 +318,9 @@ namespace uscheme {
             case CHARACTER:
                 p = read_character(s);
                 break;
+            case STRING:
+                p = read_string(s);
+                break;
         }
         return p;
     }
@@ -271,7 +333,7 @@ namespace uscheme {
                 break;
             }
             case BOOLEAN: {
-                os << '#' << (p->boolean() ? 't' : 'f');
+                os.put('#').put(p->boolean() ? 't' : 'f');
                 break;
             }
             case CHARACTER: {
@@ -284,6 +346,51 @@ namespace uscheme {
                     default  : os << ch; break;
                 }
                 break;
+            }
+            case STRING: {
+                os.put('"');
+
+                const char* str = p->string();
+                char ch;
+                while ((ch = *str)) {
+                    ++str;
+                    switch (ch) {
+                        case '\\' : {
+                            os.put('\\').put('\\');
+                            break;
+                        }
+                        case '"' : {
+                            os.put('\\').put('"');
+                            break;
+                        }
+                        case '\n': {
+                            os.put('\\').put('n');
+                            break;
+                        }
+                        case '\t': {
+                            os.put('\\').put('t');
+                            break;
+                        }
+                        case '\a': {
+                            os.put('\\').put('a');
+                            break;
+                        }
+                        case '\b': {
+                            os.put('\\').put('b');
+                            break;
+                        }
+                        case '\v': {
+                            os.put('\\').put('v');
+                            break;
+                        }
+                        default: {
+                            os.put(ch);
+                            break;
+                        }
+                    }
+                }
+
+                os.put('"');
             }
         }
     }

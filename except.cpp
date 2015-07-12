@@ -24,34 +24,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file stream.hpp
+ * \file except.cpp
  * \date 2015
  */
 
-#ifndef USCHEME_STREAM_STREAM_HPP
-#define USCHEME_STREAM_STREAM_HPP
-
-// LANG includes
-#include <istream>
-#include <ostream>
-
-// PKG includes
-#include <uscheme/defs.hpp>
 #include <uscheme/except.hpp>
-#include <uscheme/type/object.hpp>
 
 namespace uscheme {
 
-    USCHEME_API
-    bool is_delimiter(char ch);
+    const char* error_string(except_id id)
+    {
 
-    USCHEME_API
-    object_ptr read_object(std::istream& s);
+        switch (id) {
+            case ERR_EOS:
+                return "Reached EOS.";
+            case ERR_UNK_TYPE:
+                return "Invalid expression. Could not determine type.";
+            case ERR_TERM_NUM:
+                return "Number did not end with delimiter or whitespace.";
+            case ERR_INV_BOOL:
+                return "Invalid boolean value.";
+            case ERR_CHAR_NL:
+                return "Character literal did not match #\\newline.";
+            case ERR_CHAR_SP:
+                return "Character literal did not match #\\space.";
+            case ERR_CHAR_TB:
+                return "Character literal did not match #\\tab.";
+            case ERR_STR_ABR:
+                return "String literal terminated abruptly.";
+            case ERR_TERM_STR:
+                return "String literal not followed by delimiter.";
+            default:
+                return "Unknown error.";
+        }
 
-    USCHEME_API
-    void print_object(std::ostream& os, const uscheme::object_ptr& p);
+    }
 
 }//namespace uscheme
-
-#endif//USCHEME_STREAM_STREAM_HPP
-

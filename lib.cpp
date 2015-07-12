@@ -1,3 +1,4 @@
+/*
 Copyright (c) 2015, Aaditya Kalsi
 All rights reserved.
 
@@ -20,3 +21,20 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/**
+ * \file lib.cpp
+ * \date 2015
+ */
+
+#include <uscheme/defs.hpp>
+
+namespace uscheme {
+
+    const char* version(void)
+    {
+        return USCHEME_LIB_VERSION;
+    }
+
+}//namespace uscheme

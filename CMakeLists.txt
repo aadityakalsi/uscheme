@@ -29,9 +29,47 @@ set(INCLUDE_TEST_IN_BIN FALSE)
 # -- Include the magic ProjTools
 include("cmake/ProjTools.cmake")
 
-# -- Add the subdirectories
-set(PROJ_SUBDIRS  unittest; doc; tools)
+# -- Add targets
+# --- Add uscheme and libuscheme
+set(PUBLIC_HDR
+  defs.hpp
+)
 
+set(LIB_SRC
+  lib.cpp
+)
+
+set(MAIN_SRC
+  scheme.cpp
+)
+
+# --- Library version
+set(USCHEME_VERSION_MAJOR 0.1)
+set(USCHEME_VERSION_MINOR 1)
+set(USCHEME_VERSION ${USCHEME_VERSION_MAJOR}.${USCHEME_VERSION_MINOR})
+
+# --- Add libuscheme
+add_lib(uscheme SHARED ${PUBLIC_HDR} ${LIB_SRC})
+add_lib_build_def(uscheme USCHEME_BUILD)
+add_lib_build_def(uscheme "USCHEME_LIB_VERSION=\"${USCHEME_VERSION}\"")
+link_libs(uscheme )
+set_tgt_ver(uscheme ${USCHEME_VERSION} ${USCHEME_VERSION_MAJOR})
+
+# --- Add uscheme
+add_exe(scheme ${MAIN_SRC})
+link_libs(scheme uscheme)
+install_tgt(scheme)
+
+# --- Installation targets
+install_hdr(${PUBLIC_HDR})
+install_tgt(uscheme)
+install_tgt(scheme)
+install(FILES README.md DESTINATION .)
+
+# -- End targets
+
+# -- Add the subdirectories
+set(PROJ_SUBDIRS  unittest; doc; tools; test)
 # add all subdirs
 foreach(subdir ${PROJ_SUBDIRS})
   add_subdirectory(${subdir})

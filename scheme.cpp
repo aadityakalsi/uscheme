@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include <uscheme/defs.hpp>
+#include <uscheme/stream/stream.hpp>
 
 void usage(void)
 {
@@ -51,8 +52,21 @@ void usage_and_die(void)
     exit(1);
 }
 
+void repl(void)
+{
+    bool quit = false;
+    while (!quit) {
+        std::cout << "> ";
+        auto p = uscheme::read_object(std::cin);
+        uscheme::print_object(std::cout, p);
+        std::cout << '\n';
+    }
+}
+
 int main(int argc, const char* argv[])
 {
+    if (argc == 1) { repl(); }
+
     if (argc != 2) { usage_and_die(); }
 
     std::string arg1(argv[1]);

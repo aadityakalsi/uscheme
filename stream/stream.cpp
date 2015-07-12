@@ -134,4 +134,12 @@ namespace uscheme {
         return p;
     }
 
+    void print_object(std::ostream& os, const object_ptr& p)
+    {
+        switch (p->type()) {
+            case FIXNUM:
+                os << p->fixnum();
+        }
+    }
+
 }//namespace uscheme

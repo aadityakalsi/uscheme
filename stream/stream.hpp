@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // LANG includes
 #include <istream>
+#include <ostream>
 
 // PKG includes
 #include <uscheme/defs.hpp>
@@ -42,6 +43,9 @@ namespace uscheme {
 
     USCHEME_API
     object_ptr read_object(std::istream& s);
+
+    USCHEME_API
+    void print_object(std::ostream& os, const uscheme::object_ptr& p);
 
 }//namespace uscheme
 

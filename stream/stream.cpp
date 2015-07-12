@@ -165,8 +165,10 @@ namespace uscheme {
         switch (p->type()) {
             case FIXNUM:
                 os << p->fixnum();
+                break;
             case BOOLEAN:
                 os << '#' << (p->boolean() ? 't' : 'f');
+                break;
         }
     }
 

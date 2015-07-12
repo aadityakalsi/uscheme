@@ -25,6 +25,8 @@ set(PROJ_README_FILE  README.txt)
 
 # -- Include the tests in the bin folder?
 set(INCLUDE_TEST_IN_BIN FALSE)
+set(USE_CPP   TRUE)
+set(USE_CPP11 TRUE)
 
 # -- Include the magic ProjTools
 include("cmake/ProjTools.cmake")
@@ -32,11 +34,15 @@ include("cmake/ProjTools.cmake")
 # -- Add targets
 # --- Add uscheme and libuscheme
 set(PUBLIC_HDR
-  defs.hpp
+  defs.hpp;
+  type/type.hpp;
+  stream/stream.hpp
 )
 
 set(LIB_SRC
-  lib.cpp
+  lib.cpp;
+  type/type.cpp;
+  stream/stream.cpp
 )
 
 set(MAIN_SRC

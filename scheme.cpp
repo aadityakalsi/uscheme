@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <uscheme/defs.hpp>
 #include <uscheme/stream/stream.hpp>
+#include <uscheme/exec/exec.hpp>
 
 void usage(void)
 {
@@ -52,28 +53,57 @@ void usage_and_die(void)
     exit(1);
 }
 
-void repl(void)
+template <bool print = true>
+void repl(std::istream& strm)
 {
-    bool quit = false;
-    while (!quit) {
+    std::cout << "Welcome to uscheme. Use Ctrl-C to exit.\n";
+    for (;;) {
+      if (print) {
         std::cout << "> ";
-        auto p = uscheme::read_object(std::cin);
+      }
+
+        uscheme::object_ptr p;
+      try {
+        p = uscheme::read_object(strm);
+      } catch (const uscheme::exception& ex) {
+        if (ex.id() == uscheme::ERR_EOS) {
+            exit(0);
+        } else {
+            uscheme::skip_line(strm);
+        }
+        std::cerr << "ERROR: " << ex.what() << '\n';
+        continue;
+      }
+
+        p = uscheme::eval_object(p);
+
+      if (print) {
         uscheme::print_object(std::cout, p);
         std::cout << '\n';
+      }
     }
 }
 
 int main(int argc, const char* argv[])
 {
-    if (argc == 1) { repl(); }
-
-    if (argc != 2) { usage_and_die(); }
-
-    std::string arg1(argv[1]);
-    if (arg1 != "-h") {
-        usage_and_die();
-    } else {
-        usage();
+    switch (argc) {
+        case 1: {
+            repl<true>(std::cin);
+            break;
+        }
+        case 2: {
+            std::string arg1(argv[1]);
+            if (arg1 != "-h") {
+                usage_and_die();
+            } else {
+                usage();
+            }
+            break;
+        }
+        default:{
+            usage_and_die();
+            break;
+        }
     }
 
     return 0;

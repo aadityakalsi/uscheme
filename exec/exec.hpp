@@ -24,54 +24,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file object.cpp
+ * \file exec.hpp
  * \date 2015
  */
 
-// LANG includes
-#include <cstring>
+#ifndef USCHEME_EXEC_EXEC_HPP
+#define USCHEME_EXEC_EXEC_HPP
 
 // PKG includes
-#include <uscheme/type/type.hpp>
+#include <uscheme/defs.hpp>
 #include <uscheme/type/object.hpp>
-
-#if defined(_WIN32)
-#  define STRDUP _strdup
-#else
-#  define STRDUP strdup
-#endif//defined(_WIN32)
 
 namespace uscheme {
 
-    static const object_ptr TRUE  = object::create_boolean(true);
-    static const object_ptr FALSE = object::create_boolean(false);
-
-    object_ptr true_value(void)
-    {
-        return TRUE;
-    }
-
-    object_ptr false_value(void)
-    {
-        return FALSE;
-    }
-
-    void object::init_string(const char* value)
-    {
-        data_.string.value = STRDUP(value);
-    }
-
-    void object::destroy()
-    {
-        switch (type_) {
-            case STRING: {
-                free((void*)data_.string.value);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
+    USCHEME_API
+    object_ptr eval_object(const object_ptr& p);
 
 }//namespace uscheme
+
+#endif//USCHEME_EXEC_EXEC_HPP
+

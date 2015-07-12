@@ -30,15 +30,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // LANG includes
 #include <cstdio>
+#include <cstring>
 #include <cstdlib>
-#include <stdexcept>
+#include <string>
 
 // PKG includes
+#include <uscheme/except.hpp>
 #include <uscheme/stream/stream.hpp>
 
-#define ERROR_IF(cond, msg)        \
- if ((cond)) {                     \
-    throw std::runtime_error(msg); \
+#define ERROR_IF(cond, id)        \
+ if ((cond)) {                    \
+    throw uscheme::exception(id); \
  }
 
 namespace uscheme {
@@ -46,8 +48,13 @@ namespace uscheme {
     bool is_delimiter(char ch)
     {
         return isspace(ch) || (ch == EOF) ||
-               (ch == '(') || (ch == ')') ||
-               (ch == '"') || (ch == ';');
+            (ch == '(') || (ch == ')') ||
+            (ch == '"') || (ch == ';');
+    }
+
+    bool is_whitespace(char ch)
+    {
+        return isspace(ch) || (ch == ';') || (ch == EOF);
     }
 
     void skip_line(std::istream& s)
@@ -94,8 +101,36 @@ namespace uscheme {
     {
         object_type t;
         switch (s.peek()) {
-            case '#' : t = BOOLEAN; break;
-            default  : t = FIXNUM;  break;
+            case '#': {
+                s.get();
+                t = (s.peek() == '\\') ? CHARACTER : BOOLEAN;
+                s.unget();
+                break;
+            }
+            case '"': {
+                t = STRING;
+                break;
+            }
+            /* number */
+            case '+': /* fall through */
+            case '-': /* fall through */
+            case '0': /* fall through */
+            case '1': /* fall through */
+            case '2': /* fall through */
+            case '3': /* fall through */
+            case '4': /* fall through */
+            case '5': /* fall through */
+            case '6': /* fall through */
+            case '7': /* fall through */
+            case '8': /* fall through */
+            case '9': {
+                t = FIXNUM;
+                break;
+            }
+            default: {
+                ERROR_IF(true, ERR_UNK_TYPE);
+                break;
+            }
         }
         return t;
     }
@@ -118,9 +153,7 @@ namespace uscheme {
 
         num *= sign;
 
-        ERROR_IF(
-            !is_delimiter(ch),
-            "Number did not end with delimiter or whitespace.");
+        ERROR_IF(!is_delimiter(ch), ERR_TERM_NUM);
 
         return object::create_fixnum(num);
     }
@@ -136,16 +169,147 @@ namespace uscheme {
             case 't': value = true; break;
             case 'f': break;
             default :
-                ERROR_IF(true, "Invalid boolean value.");
+                ERROR_IF(true, ERR_INV_BOOL);
         }
 
         return value ? true_value() : false_value();
     }
 
+    object_ptr read_character(std::istream& s)
+    {
+        char ch = s.get(); /* get # */
+        ch = s.get();      /* get \ */
+        ch = s.get();
+
+        object_ptr p;
+
+        if (ch != 'n' && ch != 't' && ch != 's') {
+            p = object::create_character(ch);
+        } else {
+            /* could be newline or tab or space or just n or t or s */
+            char characters[8];
+            size_t numpushed = 0;
+            if (ch == 'n') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('n');
+                } else {
+                    /* better match ewline */
+                    for (; numpushed != 6; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "ewline") == 0) {
+                        p = object::create_character('\n');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, ERR_CHAR_NL);
+                    }
+                }
+            }
+            if (ch == 't') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('t');
+                } else {
+                    /* better match ab */
+                    for (; numpushed != 2; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "ab") == 0) {
+                        p = object::create_character('\t');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, ERR_CHAR_TB);
+                    }
+                }
+            }
+            if (ch == 's') {
+                if (is_delimiter(s.peek())) {
+                    p = object::create_character('s');
+                } else {
+                    /* better match pace */
+                    for (; numpushed != 4; ++numpushed) {
+                        characters[numpushed] = s.get();
+                    }
+                    characters[numpushed] = '\0';
+                    if (strcmp(characters, "pace") == 0) {
+                        p = object::create_character(' ');
+                    } else {
+                        for (size_t nchar = 0; nchar != numpushed; ++nchar) {
+                            s.unget();
+                        }
+                        ERROR_IF(true, ERR_CHAR_SP);
+                    }
+                }
+            }
+        }
+        return p;
+    }
+
+    object_ptr read_string(std::istream& s)
+    {
+        static std::string BUFFER;
+        BUFFER.resize(0);
+
+        char ch = s.get(); /* skip the " */
+        while ((ch = s.peek()) != EOF && (ch != '\0') && (ch != '"')) {
+            if (ch == '\\') {
+                s.get();
+                switch (s.peek()) {
+                    case '\\': {
+                        ch = '\\';
+                        break;
+                    }
+                    case 'n': {
+                        ch = '\n';
+                        break;
+                    }
+                    case 't': {
+                        ch = '\t';
+                        break;
+                    }
+                    case '"': {
+                        ch = '"';
+                        break;
+                    }
+                    case 'a': {
+                        ch = '\a';
+                        break;
+                    }
+                    case 'b': {
+                        ch = '\b';
+                        break;
+                    }
+                    case 'v': {
+                        ch = '\v';
+                        break;
+                    }
+                    default: {
+                        continue;
+                        // s.unget();
+                        break;
+                    }
+                }
+            }
+            BUFFER.push_back(ch);
+            s.get();
+        }
+        
+        ERROR_IF((ch != '"'), ERR_STR_ABR);
+        s.get();
+        ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_STR);
+
+        return object::create_string(BUFFER.c_str());
+    }
+
     object_ptr read_object(std::istream& s)
     {
         skip_whitespace(s);
-        ERROR_IF(s.eof(), "Reached EOS.");
+        ERROR_IF(s.eof(), ERR_EOS);
 
         const auto t = determine_type(s);
         object_ptr p;
@@ -156,6 +320,12 @@ namespace uscheme {
             case BOOLEAN:
                 p = read_boolean(s);
                 break;
+            case CHARACTER:
+                p = read_character(s);
+                break;
+            case STRING:
+                p = read_string(s);
+                break;
         }
         return p;
     }
@@ -163,12 +333,70 @@ namespace uscheme {
     void print_object(std::ostream& os, const object_ptr& p)
     {
         switch (p->type()) {
-            case FIXNUM:
+            case FIXNUM: {
                 os << p->fixnum();
                 break;
-            case BOOLEAN:
-                os << '#' << (p->boolean() ? 't' : 'f');
+            }
+            case BOOLEAN: {
+                os.put('#').put(p->boolean() ? 't' : 'f');
                 break;
+            }
+            case CHARACTER: {
+                os << "#\\";
+                char ch = p->character();
+                switch (ch) {
+                    case '\n': os << "newline"; break;
+                    case ' ' : os << "space"; break;
+                    case '\t': os << "tab"; break;
+                    default  : os << ch; break;
+                }
+                break;
+            }
+            case STRING: {
+                os.put('"');
+
+                const char* str = p->string();
+                char ch;
+                while ((ch = *str)) {
+                    ++str;
+                    switch (ch) {
+                        case '\\' : {
+                            os.put('\\').put('\\');
+                            break;
+                        }
+                        case '"' : {
+                            os.put('\\').put('"');
+                            break;
+                        }
+                        case '\n': {
+                            os.put('\\').put('n');
+                            break;
+                        }
+                        case '\t': {
+                            os.put('\\').put('t');
+                            break;
+                        }
+                        case '\a': {
+                            os.put('\\').put('a');
+                            break;
+                        }
+                        case '\b': {
+                            os.put('\\').put('b');
+                            break;
+                        }
+                        case '\v': {
+                            os.put('\\').put('v');
+                            break;
+                        }
+                        default: {
+                            os.put(ch);
+                            break;
+                        }
+                    }
+                }
+
+                os.put('"');
+            }
         }
     }
 

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define USCHEME_TYPE_OBJECT_HPP
 
 // LANG includes
+#include <cstdlib>
 #include <memory>
 
 // PKG includes
@@ -52,6 +53,11 @@ namespace uscheme {
      */
     struct object
     {
+
+        //////////////////////////////////////////////////////////////////////////
+        // Static methods
+        //////////////////////////////////////////////////////////////////////////
+
         static USCHEME_INLINE
         object_ptr create_fixnum(long value)
         {
@@ -70,6 +76,28 @@ namespace uscheme {
             return ptr;
         }
 
+        static USCHEME_INLINE
+        object_ptr create_character(char value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = CHARACTER;
+            ptr->data_.character.value = value;
+            return ptr;
+        }
+
+        static USCHEME_INLINE
+        object_ptr create_string(const char* value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = STRING;
+            ptr->init_string(value);
+            return ptr;
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+        // Instance methods
+        //////////////////////////////////////////////////////////////////////////
+
         USCHEME_INLINE
         object_type type() const
         {
@@ -86,7 +114,19 @@ namespace uscheme {
         bool is_boolean() const
         {
             return type_ == BOOLEAN;
-        }        
+        }
+
+        USCHEME_INLINE
+        bool is_character() const
+        {
+            return type_ == CHARACTER;
+        }
+
+        USCHEME_INLINE
+        bool is_string() const
+        {
+            return type_ == STRING;
+        }
 
         USCHEME_INLINE
         long fixnum() const
@@ -98,6 +138,23 @@ namespace uscheme {
         bool boolean() const
         {
             return data_.boolean.value != 0;
+        }
+
+        USCHEME_INLINE
+        char character() const
+        {
+            return data_.character.value;
+        }
+
+        USCHEME_INLINE
+        const char* string() const
+        {
+            return data_.string.value;
+        }
+
+        ~object()
+        {
+            destroy();
         }
 
       private:
@@ -116,7 +173,17 @@ namespace uscheme {
             struct {
                 char value;
             } boolean;
+            struct {
+                char value;
+            } character;
+            struct {
+                const char* value;
+            } string;
         } data_;
+
+        void init_string(const char* val);
+
+        void destroy();
     };
 
     USCHEME_API

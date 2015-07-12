@@ -24,54 +24,61 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file object.cpp
+ * \file except.hpp
  * \date 2015
  */
 
+#ifndef USCHEME_EXCEPT_HPP
+#define USCHEME_EXCEPT_HPP
+
 // LANG includes
-#include <cstring>
+#include <exception>
 
 // PKG includes
-#include <uscheme/type/type.hpp>
-#include <uscheme/type/object.hpp>
-
-#if defined(_WIN32)
-#  define STRDUP _strdup
-#else
-#  define STRDUP strdup
-#endif//defined(_WIN32)
+#include <uscheme/defs.hpp>
 
 namespace uscheme {
 
-    static const object_ptr TRUE  = object::create_boolean(true);
-    static const object_ptr FALSE = object::create_boolean(false);
-
-    object_ptr true_value(void)
+    enum except_id
     {
-        return TRUE;
-    }
+        ERR_EOS,
+        ERR_UNK_TYPE,
+        ERR_TERM_NUM,
+        ERR_INV_BOOL,
+        ERR_CHAR_NL,
+        ERR_CHAR_SP,
+        ERR_CHAR_TB,
+        ERR_STR_ABR,
+        ERR_TERM_STR
+    };
 
-    object_ptr false_value(void)
-    {
-        return FALSE;
-    }
+    USCHEME_API
+    /**
+     *
+     */
+    const char* error_string(except_id id);
 
-    void object::init_string(const char* value)
+    /**
+     *
+     */
+    class USCHEME_API exception : public std::exception
     {
-        data_.string.value = STRDUP(value);
-    }
+      public:
+        exception(except_id id)
+          : id_(id)
+        { }
 
-    void object::destroy()
-    {
-        switch (type_) {
-            case STRING: {
-                free((void*)data_.string.value);
-                break;
-            }
-            default: {
-                break;
-            }
+        except_id id() const { return id_; }
+
+        const char* what() const throw()
+        {
+            return error_string(id_);
         }
-    }
+
+      private:
+        except_id id_;
+    };
 
 }//namespace uscheme
+
+#endif//USCHEME_EXCEPT_HPP

@@ -24,54 +24,40 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /**
- * \file object.cpp
+ * \file except.cpp
  * \date 2015
  */
 
-// LANG includes
-#include <cstring>
-
-// PKG includes
-#include <uscheme/type/type.hpp>
-#include <uscheme/type/object.hpp>
-
-#if defined(_WIN32)
-#  define STRDUP _strdup
-#else
-#  define STRDUP strdup
-#endif//defined(_WIN32)
+#include <uscheme/except.hpp>
 
 namespace uscheme {
 
-    static const object_ptr TRUE  = object::create_boolean(true);
-    static const object_ptr FALSE = object::create_boolean(false);
-
-    object_ptr true_value(void)
+    const char* error_string(except_id id)
     {
-        return TRUE;
-    }
 
-    object_ptr false_value(void)
-    {
-        return FALSE;
-    }
-
-    void object::init_string(const char* value)
-    {
-        data_.string.value = STRDUP(value);
-    }
-
-    void object::destroy()
-    {
-        switch (type_) {
-            case STRING: {
-                free((void*)data_.string.value);
-                break;
-            }
-            default: {
-                break;
-            }
+        switch (id) {
+            case ERR_EOS:
+                return "Reached EOS.";
+            case ERR_UNK_TYPE:
+                return "Invalid expression. Could not determine type.";
+            case ERR_TERM_NUM:
+                return "Number did not end with delimiter or whitespace.";
+            case ERR_INV_BOOL:
+                return "Invalid boolean value.";
+            case ERR_CHAR_NL:
+                return "Character literal did not match #\\newline.";
+            case ERR_CHAR_SP:
+                return "Character literal did not match #\\space.";
+            case ERR_CHAR_TB:
+                return "Character literal did not match #\\tab.";
+            case ERR_STR_ABR:
+                return "String literal terminated abruptly.";
+            case ERR_TERM_STR:
+                return "String literal not followed by delimiter.";
+            default:
+                return "Unknown error.";
         }
+
     }
 
 }//namespace uscheme

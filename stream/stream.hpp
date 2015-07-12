@@ -37,17 +37,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // PKG includes
 #include <uscheme/defs.hpp>
+#include <uscheme/except.hpp>
 #include <uscheme/type/object.hpp>
 
 namespace uscheme {
 
     USCHEME_API
+    /**
+     *
+     */
+    void skip_line(std::istream& s);
+
+    USCHEME_API
+    /**
+     *
+     */
     object_ptr read_object(std::istream& s);
 
     USCHEME_API
+    /**
+     *
+     */
     void print_object(std::ostream& os, const uscheme::object_ptr& p);
 
 }//namespace uscheme
 
 #endif//USCHEME_STREAM_STREAM_HPP
-

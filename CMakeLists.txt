@@ -35,15 +35,19 @@ include("cmake/ProjTools.cmake")
 # --- Add uscheme and libuscheme
 set(PUBLIC_HDR
   defs.hpp;
+  except.hpp;
   type/type.hpp;
   type/object.hpp;
-  stream/stream.hpp
+  stream/stream.hpp;
+  exec/exec.hpp
 )
 
 set(LIB_SRC
   lib.cpp;
+  except.cpp
   type/object.cpp;
-  stream/stream.cpp
+  stream/stream.cpp;
+  exec/exec.cpp
 )
 
 set(MAIN_SRC
@@ -62,7 +66,7 @@ add_lib_build_def(uscheme "USCHEME_LIB_VERSION=\"${USCHEME_VERSION}\"")
 link_libs(uscheme )
 set_tgt_ver(uscheme ${USCHEME_VERSION} ${USCHEME_VERSION_MAJOR})
 
-# --- Add uscheme
+# --- Add scheme
 add_exe(scheme ${MAIN_SRC})
 link_libs(scheme uscheme)
 install_tgt(scheme)
@@ -81,4 +85,3 @@ set(PROJ_SUBDIRS  unittest; doc; tools; test)
 foreach(subdir ${PROJ_SUBDIRS})
   add_subdirectory(${subdir})
 endforeach(subdir)
-

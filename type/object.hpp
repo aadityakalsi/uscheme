@@ -181,23 +181,9 @@ namespace uscheme {
             } string;
         } data_;
 
-        void init_string(const char* val)
-        {
-            data_.string.value = strdup(val);
-        }
+        void init_string(const char* val);
 
-        void destroy()
-        {
-            switch (type_) {
-                case STRING: {
-                    free((void*)data_.string.value);
-                    break;
-                }
-                default: {
-                    break;
-                }
-            }
-        }
+        void destroy();
     };
 
     USCHEME_API

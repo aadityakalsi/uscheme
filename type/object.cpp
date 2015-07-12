@@ -35,6 +35,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <uscheme/type/type.hpp>
 #include <uscheme/type/object.hpp>
 
+#if defined(_WIN32)
+#  define STRDUP _strdup
+#else
+#  define STRDUP strdup
+#endif//defined(_WIN32)
+
 namespace uscheme {
 
     static const object_ptr TRUE  = object::create_boolean(true);
@@ -48,6 +54,24 @@ namespace uscheme {
     object_ptr false_value(void)
     {
         return FALSE;
+    }
+
+    void object::init_string(const char* value)
+    {
+        data_.string.value = STRDUP(value);
+    }
+
+    void object::destroy()
+    {
+        switch (type_) {
+            case STRING: {
+                free((void*)data_.string.value);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
 }//namespace uscheme

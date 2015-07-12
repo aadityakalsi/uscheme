@@ -43,15 +43,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace uscheme {
 
     USCHEME_API
+    /**
+     *
+     */
     bool is_delimiter(char ch);
 
     USCHEME_API
+    /**
+     *
+     */
     object_ptr read_object(std::istream& s);
 
     USCHEME_API
+    /**
+     *
+     */
     void print_object(std::ostream& os, const uscheme::object_ptr& p);
 
 }//namespace uscheme
 
 #endif//USCHEME_STREAM_STREAM_HPP
-

@@ -620,3 +620,28 @@ CPP_TEST( read_object_pair )
     }
 }
 
+CPP_TEST( read_object_symbol )
+{
+    {
+        std::stringstream strm;
+        strm << "arf";
+
+        auto p = uscheme::read_object(strm);
+        TEST_TRUE(p->type() == uscheme::SYMBOL);
+        TEST_TRUE(p->is_symbol());
+        TEST_TRUE(strcmp(p->symbol(), "arf") == 0);
+
+        std::stringstream strm1;
+        strm1 << "arf";
+        auto q = uscheme::read_object(strm1);
+        TEST_TRUE(q->type() == uscheme::SYMBOL);
+        TEST_TRUE(q->is_symbol());
+        TEST_TRUE(strcmp(q->symbol(), "arf") == 0);
+
+        TEST_TRUE(p->symbol() == q->symbol());
+
+        std::stringstream os;
+        uscheme::print_object(os, p);
+        TEST_TRUE(os.str() == "arf");
+    }
+}

@@ -95,6 +95,15 @@ namespace uscheme {
         }
 
         static USCHEME_INLINE
+        object_ptr create_symbol(const char* value)
+        {
+            object_ptr ptr(new object);
+            ptr->type_ = SYMBOL;
+            ptr->init_symbol(value);
+            return ptr;
+        }
+
+        static USCHEME_INLINE
         object_ptr create_empty_list()
         {
             object_ptr ptr(new object);
@@ -164,6 +173,12 @@ namespace uscheme {
         }
 
         USCHEME_INLINE
+        bool is_symbol() const
+        {
+            return type_ == SYMBOL;
+        }
+
+        USCHEME_INLINE
         long fixnum() const
         {
             return data_.fixnum.value;
@@ -199,6 +214,12 @@ namespace uscheme {
             return *(data_.pair.cdr);
         }
 
+        USCHEME_INLINE
+        const char* symbol() const
+        {
+            return data_.symbol.value;
+        }
+
         ~object()
         {
             destroy();
@@ -227,12 +248,17 @@ namespace uscheme {
                 const char* value;
             } string;
             struct {
+                const char* value;
+            } symbol;
+            struct {
                 object_ptr* car;
                 object_ptr* cdr;
             } pair;
         } data_;
 
         void init_string(const char* val);
+
+        void init_symbol(const char* val);
 
         void destroy();
     };
@@ -253,7 +279,7 @@ namespace uscheme {
     /**
      *
      */
-    object_ptr empty_list_value(void);
+    object_ptr empty_list_value(void); 
 
 }//namespace uscheme
 

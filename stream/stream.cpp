@@ -97,10 +97,29 @@ namespace uscheme {
         }
     }
 
+    bool is_initial(char c)
+    {
+        return isalpha(c) || c == '*' || c == '/' || c == '>' ||
+               c == '<' || c == '=' || c == '?' || c == '!';
+    }
+
     object_type determine_type(std::istream& s)
     {
         object_type t;
-        switch (s.peek()) {
+        char ch = s.peek();
+
+        if (is_initial(ch)) {
+            return SYMBOL;
+        } else if ((ch == '-') || (ch == '+')) {
+            s.get();
+            char next = s.peek();
+            s.unget();
+            if (is_delimiter(next)) {
+                return SYMBOL;
+            }
+        }
+
+        switch (ch) {
             case '#': {
                 s.get();
                 t = (s.peek() == '\\') ? CHARACTER : BOOLEAN;
@@ -350,6 +369,9 @@ namespace uscheme {
         } else {
             cdr = read_pair(s);
             out = object::cons(car, cdr);
+            if (s.peek() == ')') {
+                s.get();
+            }
         }
 
         //if (is_whitespace(s.peek())) {
@@ -360,6 +382,22 @@ namespace uscheme {
         //ERROR_IF(!is_whitespace(s.peek()), ERR_TERM_LIST);
 
         return out;
+    }
+
+    object_ptr read_symbol(std::istream& s)
+    {
+        static std::string BUFFER;
+        BUFFER.resize(0);
+
+        char c = s.peek();
+        while (is_initial(c) || isdigit(c) || c == '+' || c == '-') {
+            BUFFER.push_back(c);
+            s.get();
+            c = s.peek();
+        }
+
+        ERROR_IF(!is_delimiter(c), ERR_TERM_SYM);
+        return object::create_symbol(BUFFER.c_str());
     }
 
     object_ptr read_object(std::istream& s)
@@ -387,6 +425,9 @@ namespace uscheme {
                 break;
             case EMPTY_LIST:
                 p = read_empty_list(s);
+                break;
+            case SYMBOL:
+                p = read_symbol(s);
                 break;
         }
         return p;
@@ -483,6 +524,10 @@ namespace uscheme {
                 os.put('(');
                 print_pair(os, p);
                 os.put(')');
+                break;
+            }
+            case SYMBOL: {
+                os << p->symbol();
                 break;
             }
         }

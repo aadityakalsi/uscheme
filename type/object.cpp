@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // LANG includes
 #include <cstring>
+#include <unordered_set>
 
 // PKG includes
 #include <uscheme/type/type.hpp>
@@ -41,11 +42,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #  define STRDUP strdup
 #endif//defined(_WIN32)
 
+typedef std::unique_ptr<char[]> safe_c_str;
+
+struct string_hash
+{
+    USCHEME_INLINE
+    size_t operator()(const safe_c_str& s) const
+    {
+        const char* str = s.get();
+        size_t h = 0;
+        for (; *str; ++str) {
+            h = (h * 31) + (*str);
+        }
+        return h;
+    }
+};
+
+struct string_equal
+{
+    USCHEME_INLINE
+    bool operator()(const safe_c_str& s1, const safe_c_str& s2) const
+    {
+        return strcmp(s1.get(), s2.get()) == 0;
+    }
+};
+
 namespace uscheme {
 
-    static const object_ptr TRUE  = object::create_boolean(true);
-    static const object_ptr FALSE = object::create_boolean(false);
-    static const object_ptr EMPTY = object::create_empty_list();
+
+    typedef std::unordered_set<safe_c_str, string_hash, string_equal> set_type;
+
+    static const object_ptr TRUE    = object::create_boolean(true);
+    static const object_ptr FALSE   = object::create_boolean(false);
+    static const object_ptr EMPTY   = object::create_empty_list();
+
+    static set_type SYM_TAB;
 
     object_ptr true_value(void)
     {
@@ -65,6 +96,18 @@ namespace uscheme {
     void object::init_string(const char* value)
     {
         data_.string.value = STRDUP(value);
+    }
+
+    void object::init_symbol(const char* value)
+    {
+        size_t len = strlen(value);
+        char* newstr = new char[len + 1];
+        memcpy(newstr, value, len + 1);
+
+        safe_c_str s(newstr);
+
+        auto pr = SYM_TAB.insert(std::move(s));
+        data_.string.value = (*(pr.first)).get();
     }
 
     void object::destroy()

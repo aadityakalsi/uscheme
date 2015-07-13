@@ -51,7 +51,8 @@ namespace uscheme {
         ERR_STR_ABR,
         ERR_TERM_STR,
         ERR_TERM_LIST,
-        ERR_IMP_LIST_WS
+        ERR_IMP_LIST_WS,
+        ERR_TERM_SYM
     };
 
     USCHEME_API
